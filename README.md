@@ -38,7 +38,7 @@ There are 3 major tasks in this assignment.
 3. Read metrics and write them to a file, append the filename with datetime stamp
 
 
-Part 1
+### Part 1
 We will use the `prometheus-node-exporter` package provided by `prometheus-community` and install it via helm.
 I already have the prometheus-community added to my local, just in case if you want to add it, use below cmd:
 `helm repo add prometheus-community https://prometheus-community.github.io/helm-charts`
@@ -84,3 +84,4 @@ We can see, following objects are created:
   NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
   daemonset.apps/one2n-lab1-prometheus-node-exporter   1         1         1       1            1           kubernetes.io/os=linux   3m19s
   ```
+
