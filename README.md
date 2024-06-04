@@ -4,7 +4,6 @@
 host = macbook
 docker = Docker Desktop
 Kubernetes = Docker Desktop extension
-IaC = Terraform
 ```
 
 ## Problem statement
@@ -96,6 +95,7 @@ To achieve above tasks, we can build a custom docker image `scraper_app` using t
   ```
   docker build -t scraper_app:latest .
   ```
+  Alternatively, we can also use the same image that has been pushed to the dockerhub at `ajinkyapwadekar/scraper_app:latest`
 
 2. For the kubernetes cronjob, we will spun a container based on `scraper_app:latest`, to create the `cronjob,pvc and pvc-inspector pod` run:
   ```
@@ -103,6 +103,7 @@ To achieve above tasks, we can build a custom docker image `scraper_app` using t
   ```
 
   ![one2n_assesment_architecture](one2n.png)
+  > used https://github.com/mkimuram/k8sviz to generate the architecture diagram.
 
 After the objects are created, below is the output:
 ```
