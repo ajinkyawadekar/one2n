@@ -21,8 +21,8 @@ metadata:
     app.kubernetes.io/instance: one2n-lab1
 spec:
   schedule: "* * * * *"
-  successfulJobsHistoryLimit: 5
-  failedJobsHistoryLimit: 3
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
       template:

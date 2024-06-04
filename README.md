@@ -37,7 +37,6 @@ There are 3 major tasks in this assignment.
 2. Run a kubernetes cronjob every min to read the metrics
 3. Read metrics and write them to a file, append the filename with datetime stamp
 
-
 ### Part 1
 We will use the `prometheus-node-exporter` package provided by `prometheus-community` and install it via helm.
 I already have the prometheus-community added to my local, just in case if you want to add it, use below cmd:
@@ -84,4 +83,76 @@ We can see, following objects are created:
   NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
   daemonset.apps/one2n-lab1-prometheus-node-exporter   1         1         1       1            1           kubernetes.io/os=linux   3m19s
   ```
+
+### Part 2
+Now that the node exporter is scraping the metrics,
+  1. we need to run a kubernetes cronjob that will read the metrics (CPU, Memory, Disk Usage).
+  2. append it to a file with date&time stamp in the filename
+  3. Also running a pvc-investigator vm to be able to attach the PV and read the data
+
+To achieve above tasks, we can build a custom docker image `scraper_app` using the `Dockerfile` that will read the simple `app.sh` code.
+
+1. To build the docker image run below cmd from the repo
+  ```
+  docker build -t scraper_app:latest .
+  ```
+
+2. For the kubernetes cronjob, we will spun a container based on `scraper_app:latest`, to create the `cronjob,pvc and pvc-inspector pod` run:
+  ```
+  kubectl create -f one2n_cron_pvc_pod.yaml
+  ```
+
+  ![one2n_assesment_architecture](one2n.png)
+
+After the objects are created, below is the output:
+```
+kubectl get all -n one2n -l app.kubernetes.io/instance=one2n-lab1     
+NAME                                            READY   STATUS    RESTARTS   AGE
+pod/one2n-lab1-prometheus-node-exporter-47fp8   1/1     Running   0          28h
+pod/pvc-inspector                               1/1     Running   0          49m
+
+NAME                                          TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+service/one2n-lab1-prometheus-node-exporter   LoadBalancer   10.106.51.83   localhost     9100:30612/TCP   28h
+
+NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/one2n-lab1-prometheus-node-exporter   1         1         1       1            1           kubernetes.io/os=linux   28h
+
+NAME                                  SCHEDULE    SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+cronjob.batch/metrics-collector-job   * * * * *   False     0        43s             49m
+```
+
+we can also check if the `pvc-inspector` pod is able to see the files:
+```
+kubectl -n one2n exec -it pvc-inspector -- sh                    
+/ # ls
+bin            etc            home           lib64          root           tmp            var
+dev            exporter-logs  lib            proc           sys            usr
+
+ls -lrth exporter-logs/
+total 192K   
+-rw-r--r--    1 root     root        4.8K Jun  4 10:32 metrics_file_20240604_103201.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:33 metrics_file_20240604_103300.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:34 metrics_file_20240604_103400.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:35 metrics_file_20240604_103501.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:36 metrics_file_20240604_103600.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:37 metrics_file_20240604_103700.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:38 metrics_file_20240604_103800.log
+-rw-r--r--    1 root     root        4.8K Jun  4 10:39 metrics_file_20240604_103900.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:09 metrics_file_20240604_110918.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:10 metrics_file_20240604_111000.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:11 metrics_file_20240604_111100.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:12 metrics_file_20240604_111200.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:13 metrics_file_20240604_111300.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:14 metrics_file_20240604_111400.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:15 metrics_file_20240604_111500.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:16 metrics_file_20240604_111600.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:17 metrics_file_20240604_111700.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:18 metrics_file_20240604_111800.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:19 metrics_file_20240604_111900.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:20 metrics_file_20240604_112000.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:21 metrics_file_20240604_112100.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:22 metrics_file_20240604_112200.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:23 metrics_file_20240604_112301.log
+-rw-r--r--    1 root     root        4.8K Jun  4 11:24 metrics_file_20240604_112400.log
+```
 
