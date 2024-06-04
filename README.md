@@ -36,6 +36,9 @@ There are 3 major tasks in this assignment.
 2. Run a kubernetes cronjob every min to read the metrics
 3. Read metrics and write them to a file, append the filename with datetime stamp
 
+### Video walk-through of the assignment
+https://www.youtube.com/watch?v=jCaN3RabElQ
+
 ### Part 1
 We will use the `prometheus-node-exporter` package provided by `prometheus-community` and install it via helm.
 I already have the prometheus-community added to my local, just in case if you want to add it, use below cmd:
@@ -87,7 +90,7 @@ We can see, following objects are created:
 Now that the node exporter is scraping the metrics,
   1. we need to run a kubernetes cronjob that will read the metrics (CPU, Memory, Disk Usage).
   2. append it to a file with date&time stamp in the filename
-  3. Also running a pvc-investigator vm to be able to attach the PV and read the data
+  3. Also running a pvc-inspector vm to be able to attach the PV and read the data
 
 To achieve above tasks, we can build a custom docker image `scraper_app` using the `Dockerfile` that will read the simple `app.sh` code.
 
